@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, render_template
 
 import numpy as np
@@ -20,21 +21,17 @@ def predict():
 
         user_input = [str(x) for x in request.form.values()]
         user_input = user_input[0]
-        # print(user_input)
+
         pickled_tfidf_vectorizer = pickle.load(
-            open('Tfidf_vectorizer.pkl', 'rb'))
-        pickled_model = pickle.load(open('Logistic_Reg_final_model.pkl', 'rb'))
+            open(os.path.join('pickled_files', 'Tfidf_vectorizer.pkl'), 'rb'))
+        pickled_model = pickle.load(
+            open(os.path.join('pickled_files', 'Logistic_Reg_final_model.pkl'), 'rb'))
         pickled_user_final_rating = pickle.load(
-            open('user_final_rating.pkl', 'rb'))
-        pickled_mapping = pickle.load(open('prod_id_name_mapping.pkl', 'rb'))
+            open(os.path.join('pickled_files', 'user_final_rating.pkl'), 'rb'))
+        pickled_mapping = pickle.load(
+            open(os.path.join('pickled_files', 'prod_id_name_mapping.pkl'), 'rb'))
         pickled_reviews_data = pickle.load(
-            open('reviews_data_all_cols.pkl', 'rb'))
-
-        # print(pickled_user_final_rating)
-
-        # recommendations = pd.DataFrame(pickled_user_final_rating.loc[user_input]).reset_index()
-        # recommendations.columns=['id','user_pred_rating']
-        # recommendations= recommendations.sort_values(by='user_pred_rating',ascending=False)[0:20]
+            open(os.path.join('pickled_files', 'reviews_data_all_cols.pkl'), 'rb'))
 
         recommendations = pd.DataFrame(
             pickled_user_final_rating.loc[user_input]).reset_index()
@@ -86,11 +83,9 @@ def predict():
         name_display = improved_recommendations_final.head(5)
         name_display = name_display['name']
 
-        output = name_display.to_list()
-        output.insert(0, "***")
-        output = "***\t \t***".join(output)
-        # print(output)
-        return render_template('index.html', prediction_text='Top 5 recommendations are- {}'.format(output))
+        name_list = name_display.to_list()
+
+        return render_template('index.html', prediction_text='Top 5 recommendations are-', predictions=name_list)
     else:
         return render_template('index.html')
 
@@ -98,4 +93,4 @@ def predict():
 if __name__ == '__main__':
     print('*** App Started ***')
     # app.run(debug=True)
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=3000, debug=True)
